@@ -134,10 +134,10 @@ class BarcodeDrawer(object):
 if __name__ == '__main__':
     
     codes = [[1,1,1],[0,0,0],[0,1,0],[1,0,1]]
-    width = 150
-    height = 500
-    unit = 30
-    notchWidth = [1,3,5,10]
+    width = 15
+    height = 50
+    unit = 3
+    notchWidth = [.1,.3,.5,1]
 
     for code in codes:
         codeStr = ''.join(map(str,code))
