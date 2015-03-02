@@ -1,4 +1,5 @@
 %% Loading and examining basic audio file
+% NOTE - did not complete this function, just did it in Audacity
 
 clear all
 close all
