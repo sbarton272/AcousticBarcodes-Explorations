@@ -1,39 +1,33 @@
-%% Step 1: Transient isolation
-function transients()
+function transLoc = transients(y, Fs)
 
-close all
-clear all
+transLoc = [];
 
-FILE_START = '../audio/black011001-';
-FILE_END = '.wav';
-FILE_NUMS = 1:9;
-for fileNum = FILE_NUMS
-    fileName = [FILE_START, num2str(fileNum), FILE_END];
-    plotAudio(fileName);
-end
+%% Look at energy
+y = y.^2;
 
-%% Basic filtering
+%% Low pass to get idea of where changes are
+% Expect clicks to be about T duration so filter for that
+T = .001;
+N = floor(T*Fs);
 
-%% Transients
+H = fspecial('gaussian', [1 N], N/8);
+lowPass = conv(H,abs(y));
 
-end
+plotAudio(lowPass,Fs);
 
-function plotAudio(file)
-%% Load
-[y2, Fs] = audioread(file);
+%% Check gaussian
+%t = floor(.3325*Fs):floor(.34*Fs);
+%h = [H zeros(1,length(t) - length(H))];
+%figure; plot(t,y(t),t,h,t,lowPass(t));
 
-% Make single channel
-y1 = sum(y2,2);
+%% Find transient locations
+lowPassEng = lowPass > std(lowPass);
+riseEdges = diff(lowPassEng) > 0;
+t = 1:length(y)-1;
+figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
 
-%% Viz
+%% Find transients
 
-sound(y1,Fs);
-
-w = linspace(-1/Fs,1/(2*Fs),length(y1));
-t = linspace(0,length(y1)/Fs,length(y1));
-
-figure;
-subplot(2,1,1); plot(w,fftshift(abs(fft(y1))));
-subplot(2,1,2); plot(t,y1);
+transLoc = find(riseEdges);
 
 end
