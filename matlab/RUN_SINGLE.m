@@ -31,10 +31,10 @@ interOnsetDelay = diff(trans);
 figure; stem(interOnsetDelay); title('Inter onset delays');
 
 unitLength = interOnsetDelay(1);
-VARIANCE = 
-for i = 2:length(interOnsetDelay)
+%VARIANCE = 
+%for i = 2:length(interOnsetDelay)
     
-end
+%end
 
 %% Decode - keep basic
 
