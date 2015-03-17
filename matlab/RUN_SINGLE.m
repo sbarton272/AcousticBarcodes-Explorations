@@ -26,16 +26,5 @@ num = length(locs)
 %% Plot found locations
 plotTransientLocs(trans, audio1, Fs);
 
-%% Filter with timing
-interOnsetDelay = diff(trans);
-figure; stem(interOnsetDelay); title('Inter onset delays');
-
-unitLength = interOnsetDelay(1);
-%VARIANCE = 
-%for i = 2:length(interOnsetDelay)
-    
-%end
-
-%% Decode - keep basic
-
-
+%% Decode
+decoded = decodeBarcode(trans, true)
