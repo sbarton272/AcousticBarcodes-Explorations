@@ -16,13 +16,13 @@ for i = 1:N
 
     %% Transients
     trans = transients(fltY,Fs);
-    
+
     %% Plot found locations
     plotTransientLocs(trans, audio, Fs);
 
     %% Decode
-    decoded = decodeBarcode(trans, true);
-   
+    decoded = decodeBarcode(trans, true, Fs);
+
     %% Errors
     code = audioFiles{i}.encoding;
     m = length(code);
@@ -32,8 +32,12 @@ for i = 1:N
     else
         code = [code, -ones(1,n-m)];
     end
+    if i == 8 % these audio samples are backwards!
+        code = flip(code);
+    end
+
     errs(i) = sum(decoded ~= code);
-    
+
 end
 
 figure; stem(errs); title('Errors');
