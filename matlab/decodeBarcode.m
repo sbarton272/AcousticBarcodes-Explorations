@@ -31,8 +31,9 @@ for g = 1:length(iois) - 2
     end
 end
 
+prevDelay = 0;
 for i = g+2:length(iois)
-    delay = iois(i);
+    delay = iois(i) + prevDelay;
 
     oneLength = ONE_ENCODE*unitLength;
     zeroLength = ZERO_ENCODE*unitLength;
@@ -47,13 +48,13 @@ for i = g+2:length(iois)
         decoded = [decoded, 0];
         delay = delay / ZERO_ENCODE;
     else
+        prevDelay = delay;
         continue
     end
-
     % Update unitLength, exponential moving average
     unitLength = unitLength*.2 + delay*.8;
     unitLengthAvg(i) = unitLength;
-
+    prevDelay = 0;
 end
 
 if bPlot
