@@ -7,7 +7,8 @@ close all
 [audioFiles, Fs] = loadAudio();
 N = length(audioFiles);
 errs = zeros(1,N);
-for i = 1:N
+incorrects = zeros(1,N);
+for i = [1]
     disp(['Decoding ', audioFiles{i}.name]);
     audio = sum(audioFiles{i}.audio, 2);
 
@@ -37,6 +38,9 @@ for i = 1:N
     end
 
     errs(i) = sum(decoded ~= code);
+
+    % error detection: incorrect number of bits
+    incorrects(i) = (length(decoded) != length(code));
 
 end
 
