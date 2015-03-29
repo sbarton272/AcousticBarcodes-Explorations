@@ -43,7 +43,7 @@ class BarcodeDrawer(object):
     ZERO_WIDTH = 2
     ONE_WIDTH = 1
 
-    def __init__(s, code, width=200, height=500, unitWidth=None, barWidth=None,
+    def __init__(s, code, width=200, height=None, unitWidth=None, barWidth=None,
         notchWidth=2, startBand=[1,1], stopBand=[0,1], includeText=False):
         
         s.digits = startBand + code + stopBand
@@ -63,13 +63,13 @@ class BarcodeDrawer(object):
         # Notch unit width
         unitLen = sum(map(lambda x: s.ZERO_WIDTH if x==0 else s.ONE_WIDTH, s.digits))
         if unitWidth == None:
-            # Sub one notchWidth for first notch
-            codeWidth = (height - notchWidth)/unitLen
+            # Sub one notchWidth for first notch, add 2 unit len for buffer
+            codeWidth = (height - notchWidth)/(unitLen + 2) 
             unitWidth = codeWidth - notchWidth
         s.unitWidth = unitWidth
 
         # Check valid lengths
-        s.barcodeLen = (s.unitWidth + s.notchWidth) * unitLen
+        s.barcodeLen = (unitWidth + notchWidth) * unitLen + notchWidth
         if s.barcodeLen > height:
             raise ValueError('Too many digits to fit window')
 
@@ -89,32 +89,24 @@ class BarcodeDrawer(object):
             text += ''.join(map(str,s.stopBand))
             drawing.add(dxf.text(text, height=s.unitWidth/3))
 
+        # Initial offset
         xOffset = (s.size[0] - s.barWidth) / 2
         yOffset = (s.size[1] - s.barcodeLen) / 2
 
         # Draw notches
         for d in s.digits:
-            out = s.drawBar(drawing,d,xOffset,yOffset)
-            yOffset = out[1]
+            newOffset = s.drawBar(drawing,d,xOffset,yOffset)
+            yOffset = newOffset[1]
 
         # Draw final notch
-        x0 = xOffset
-        y0 = yOffset
-        x1 = x0 + s.barWidth
-        y1 = y0 + s.notchWidth
-        drawing.add(dxf.polyline(points=[(x0,y0), (x1,y0), (x1,y1), (x0,y1), (x0,y0)]))
+        s.drawNotch(drawing, xOffset, yOffset)
 
         drawing.save()
 
     def drawBar(s, drawing, digit, xOffset, yOffset):
         """ Draw bar and return lower right corner """
         
-        # Draw start notch
-        x0 = xOffset
-        y0 = yOffset
-        x1 = x0 + s.barWidth
-        y1 = y0 + s.notchWidth
-        drawing.add(dxf.polyline(points=[(x0,y0), (x1,y0), (x1,y1), (x0,y1), (x0,y0)]))
+        (x0,y0,x1,y1) = s.drawNotch(drawing, xOffset, yOffset)
 
         # Draw end notch
         x0 = xOffset
@@ -127,6 +119,15 @@ class BarcodeDrawer(object):
 
         return (x0,y0)
 
+    def drawNotch(s, drawing, xOffset, yOffset):
+        # Draw start notch
+        x0 = xOffset
+        y0 = yOffset
+        x1 = x0 + s.barWidth
+        y1 = y0 + s.notchWidth
+        drawing.add(dxf.polyline(points=[(x0,y0), (x1,y0), (x1,y1), (x0,y1), (x0,y0)]))
+        return (x0,y0,x1,y1)
+
 #========================================================
 # Parse options
 #========================================================
@@ -135,16 +136,16 @@ if __name__ == '__main__':
     
     codes = [[1,1,1],[0,0,0],[0,1,0],[1,0,1]]
     width = 15
-    height = 50
-    unit = 3
-    notchWidth = [.1,.3,.5,1]
+    height = 20
+    unit = 1
+    notchWidth = [.3,.5]
 
     for code in codes:
         codeStr = ''.join(map(str,code))
 
         for n in notchWidth:
-            filename = codeStr + '-' + str(n) + '.dxf'
-            drawer = BarcodeDrawer(code, width, height, unit, width, n,
+            filename = 'code' + codeStr + '-notch' + str(n) + '-len' + str(unit) + '.dxf'
+            drawer = BarcodeDrawer(code, width=width, height=height, unitWidth=unit, notchWidth=n,
                 includeText=True)
             drawer.draw(filename)
 

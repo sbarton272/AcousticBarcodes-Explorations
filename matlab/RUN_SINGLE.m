@@ -7,7 +7,7 @@ close all
 [audioFiles, Fs] = loadAudio();
 
 %% Extract single test file
-audio2 = audioFiles{2}.audio;
+audio2 = audioFiles{5}.audio; % 1, 3, 5, 8, 9
 audio1 = sum(audio2, 2);
 audioFiles{2}.name
 
