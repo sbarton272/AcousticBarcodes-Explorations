@@ -5,6 +5,10 @@ ZERO_ENCODE = 2;
 
 interOnsetDelay = diff(trans);
 
+%TODO add in unit length detection
+%TODO discrimination by thresholding ioi ratios
+%TODO unit length interpolation curve
+
 % Decide if interonset delay is encoding 0 or 1 based on which multiple of
 % unitLen it is closer to
 unitLength = interOnsetDelay(1); % Assume first is unit len
@@ -14,7 +18,7 @@ unitLengthAvg = zeros(1,length(interOnsetDelay));
 unitLengthAvg(1) = unitLength;
 for i = 2:length(interOnsetDelay)
     delay = interOnsetDelay(i);
-    
+
     % Decode, pick closer
     oneDist = abs(ONE_ENCODE*unitLength - delay);
     zeroDist = abs(ZERO_ENCODE*unitLength - delay);
@@ -25,11 +29,11 @@ for i = 2:length(interOnsetDelay)
         decoded = [decoded, 0];
         delay = delay / ZERO_ENCODE;
     end
-    
+
     % Update unitLength, exponential moving average
     unitLength = unitLength*.2 + delay*.8;
     unitLengthAvg(i) = unitLength;
-    
+
 end
 
 if bPlot

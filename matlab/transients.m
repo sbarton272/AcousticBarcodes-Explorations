@@ -13,6 +13,8 @@ N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
 lowPass = conv(H,abs(y));
 
+%TODO: better envelope follower/detector/thing
+
 plotAudio(lowPass,Fs);
 
 %% Check gaussian
@@ -21,6 +23,7 @@ plotAudio(lowPass,Fs);
 %figure; plot(t,y(t),t,h,t,lowPass(t));
 
 %% Find transient locations
+% TODO better threshold
 lowPassEng = lowPass > std(lowPass);
 riseEdges = diff(lowPassEng) > 0;
 t = 1:length(y)-1;

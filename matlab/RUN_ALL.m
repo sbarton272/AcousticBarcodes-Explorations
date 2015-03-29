@@ -16,13 +16,16 @@ for i = 1:N
 
     %% Transients
     trans = transients(fltY,Fs);
-    
+
     %% Plot found locations
     plotTransientLocs(trans, audio, Fs);
 
     %% Decode
     decoded = decodeBarcode(trans, true);
-   
+
+    %TODO orientation: forward/backward
+    %Err detection (with code)
+
     %% Errors
     code = audioFiles{i}.encoding;
     m = length(code);
@@ -33,7 +36,7 @@ for i = 1:N
         code = [code, -ones(1,n-m)];
     end
     errs(i) = sum(decoded ~= code);
-    
+
 end
 
 figure; stem(errs); title('Errors');
