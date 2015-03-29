@@ -40,7 +40,7 @@ for i = [1]
     errs(i) = sum(decoded ~= code);
 
     % error detection: incorrect number of bits
-    incorrects(i) = (length(decoded) != length(code));
+    incorrects(i) = (length(decoded) ~= length(code));
 
 end
 
