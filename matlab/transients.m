@@ -33,15 +33,18 @@ N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
 lowPass = conv(H,filtered);
 
-if verbose
-    plotAudio(lowPass,Fs);
-end
+% if verbose
+%     plotAudio(lowPass,Fs);
+% end
 
 %% Find transient locations
 fltEng = lowPass > std(lowPass);
 riseEdges = diff(fltEng) > 0;
 t = 1:length(y)-1;
-figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
+
+if verbose
+    figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
+end
 
 %% Find transients
 

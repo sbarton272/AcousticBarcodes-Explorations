@@ -8,7 +8,7 @@ close all
 N = length(audioFiles);
 errs = zeros(1,N);
 for i = 1:N
-    [decoded, e] = runAcousticBarcodes(audioFiles{i});
+    [decoded, e] = runAcousticBarcodes(audioFiles{i}, Fs);
     errs(i) = e;
 end
 

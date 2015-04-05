@@ -1,15 +1,16 @@
 %% Run basic algorithm on single file
 
-clear all
+function RUN_SINGLE(n)
+
 close all
 
 %% Load
 [audioFiles, Fs] = loadAudio();
 
 %% Extract single test file
-audio2 = audioFiles{5}.audio; % 1, 3, 5, 8, 9
+audio2 = audioFiles{n}.audio; % 1, 3, 5, 8, 9
 audio1 = sum(audio2, 2);
-audioFiles{2}.name
+audioFiles{n}.name
 
 %% Plot
 plotAudio(audio2, Fs);
@@ -28,3 +29,5 @@ plotTransientLocs(trans, audio1, Fs);
 
 %% Decode
 decoded = decodeBarcode(trans, true)
+
+end
