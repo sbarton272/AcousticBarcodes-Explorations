@@ -27,7 +27,7 @@ end
 
 %% Apply gaussian to reduce spurious large derivatives
 % Expect clicks to be about T duration so filter for that
-T = .001;
+T = .003;
 N = floor(T*Fs);
 
 H = fspecial('gaussian', [1 N], N/8);
