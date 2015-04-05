@@ -87,7 +87,7 @@ class BarcodeDrawer(object):
             text += ''.join(map(str,s.code))
             text += '-'
             text += ''.join(map(str,s.stopBand))
-            drawing.add(dxf.text(text, height=s.unitWidth/3))
+            drawing.add(dxf.text(text, height=s.unitWidth))
 
         # Initial offset
         xOffset = (s.size[0] - s.barWidth) / 2

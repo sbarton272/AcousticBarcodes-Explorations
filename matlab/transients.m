@@ -1,31 +1,45 @@
-function transLoc = transients(y, Fs)
+function transLoc = transients(y, Fs, verbose)
 
 transLoc = [];
 
 %% Look at energy
 y = y.^2;
 
-%% Low pass to get idea of where changes are
+%% Envelope following just like with circuit envelope following
+TAU = .1 / Fs;
+
+filtered = zeros(size(y));
+time = 1;
+filtered(1) = y(1);
+lastMax = y(1);
+for i = 2:length(y)
+    % Take value if larger than falling exponential
+    expVal = lastMax*exp(-TAU*time*Fs);
+    if (y(i) >= expVal)
+        filtered(i) = y(i);
+        lastMax = y(i);
+        time = 1;
+    else
+        filtered(i) = expVal;
+        time = time + 1;
+    end
+end
+
+%% Apply gaussian to reduce spurious large derivatives
 % Expect clicks to be about T duration so filter for that
 T = .001;
 N = floor(T*Fs);
 
 H = fspecial('gaussian', [1 N], N/8);
-lowPass = conv(H,abs(y));
+lowPass = conv(H,filtered);
 
-%TODO: better envelope follower/detector/thing
-
-plotAudio(lowPass,Fs);
-
-%% Check gaussian
-%t = floor(.3325*Fs):floor(.34*Fs);
-%h = [H zeros(1,length(t) - length(H))];
-%figure; plot(t,y(t),t,h,t,lowPass(t));
+if verbose
+    plotAudio(lowPass,Fs);
+end
 
 %% Find transient locations
-% TODO better threshold
-lowPassEng = lowPass > std(lowPass);
-riseEdges = diff(lowPassEng) > 0;
+fltEng = lowPass > std(lowPass);
+riseEdges = diff(fltEng) > 0;
 t = 1:length(y)-1;
 figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
 

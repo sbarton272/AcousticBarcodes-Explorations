@@ -19,7 +19,7 @@ fltY = preFilter(audio1, true);
 plotAudio(fltY, Fs);
 
 %% Transients
-trans = transients(fltY,Fs);
+trans = transients(fltY, Fs, true);
 locs = trans/Fs
 num = length(locs)
 

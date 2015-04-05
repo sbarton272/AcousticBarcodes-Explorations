@@ -8,35 +8,8 @@ close all
 N = length(audioFiles);
 errs = zeros(1,N);
 for i = 1:N
-    disp(['Decoding ', audioFiles{i}.name]);
-    audio = sum(audioFiles{i}.audio, 2);
-
-    %% Pre-Filter noise
-    fltY = preFilter(audio, false);
-
-    %% Transients
-    trans = transients(fltY,Fs);
-
-    %% Plot found locations
-    plotTransientLocs(trans, audio, Fs);
-
-    %% Decode
-    decoded = decodeBarcode(trans, true);
-
-    %TODO orientation: forward/backward
-    %Err detection (with code)
-
-    %% Errors
-    code = audioFiles{i}.encoding;
-    m = length(code);
-    n = length(decoded);
-    if m > n
-        decoded = [decoded, -ones(1,m-n)];
-    else
-        code = [code, -ones(1,n-m)];
-    end
-    errs(i) = sum(decoded ~= code);
-
+    [decoded, e] = runAcousticBarcodes(audioFiles{i});
+    errs(i) = e;
 end
 
 figure; stem(errs); title('Errors');
