@@ -5,19 +5,27 @@ transLoc = [];
 %% Look at energy
 y = y.^2;
 
-%% Envelope following just like with circuit envelope following
-TAU = .1 / Fs;
+%% Apply initial gaussian to do light smoothing
+T = .001;
+N = floor(T*Fs);
+H = fspecial('gaussian', [1 N], N/8)
+z = conv(H,y);
 
-filtered = zeros(size(y));
+% filtered = z;
+
+% Envelope following just like with circuit envelope following
+TAU = .02 / Fs;
+
+filtered = zeros(size(z));
 time = 1;
-filtered(1) = y(1);
-lastMax = y(1);
-for i = 2:length(y)
+filtered(1) = z(1);
+lastMax = z(1);
+for i = 2:length(z)
     % Take value if larger than falling exponential
     expVal = lastMax*exp(-TAU*time*Fs);
-    if (y(i) >= expVal)
-        filtered(i) = y(i);
-        lastMax = y(i);
+    if (z(i) >= expVal)
+        filtered(i) = z(i);
+        lastMax = z(i);
         time = 1;
     else
         filtered(i) = expVal;
@@ -27,11 +35,12 @@ end
 
 %% Apply gaussian to reduce spurious large derivatives
 % Expect clicks to be about T duration so filter for that
-T = .003;
+T = .002;
 N = floor(T*Fs);
 
 H = fspecial('gaussian', [1 N], N/8);
 lowPass = conv(H,filtered);
+% lowPass = filtered;
 
 % if verbose
 %     plotAudio(lowPass,Fs);
@@ -42,8 +51,11 @@ fltEng = lowPass > std(lowPass);
 riseEdges = diff(fltEng) > 0;
 t = 1:length(y)-1;
 
+
 if verbose
-    figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
+    % figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
+    % figure; plot(t, y(t), t, lowPass(t)); title('Transients');
+    figure; plot(t, lowPass(t)); title('Transients');
 end
 
 %% Find transients
