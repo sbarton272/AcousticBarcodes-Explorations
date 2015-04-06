@@ -1,9 +1,9 @@
 function [audioFiles, Fs] = loadAudio()
 
-% FILE_START = '../audio/black011001-';
-% ENCODING = [1 1 0 1 1 0 0 1 1 1]; % start/stop bands of [1 1]
-FILE_START = '../audio/1110101-*';
-ENCODING = [1 1 1 0 1 0 1];
+FILE_START = '../audio/black011001-*';
+ENCODING = [1 1 0 1 1 0 0 1 1 1]; % start/stop bands of [1 1]
+% FILE_START = '../audio/1110101-*';
+% ENCODING = [1 1 1 0 1 0 1];
 FILE_END = '.wav';
 
 % audioFiles = cell(1,length(FILE_NUMS));
