@@ -6,15 +6,13 @@ transLoc = [];
 y = y.^2;
 
 %% Apply initial gaussian to do light smoothing
-T = .001;
+T = .002;
 N = floor(T*Fs);
-H = fspecial('gaussian', [1 N], N/8)
+H = fspecial('gaussian', [1 N], N/8);
 z = conv(H,y);
 
-% filtered = z;
-
-% Envelope following just like with circuit envelope following
-TAU = .02 / Fs;
+%% Envelope following just like with circuit envelope following
+TAU = .01 / Fs;
 
 filtered = zeros(size(z));
 time = 1;
@@ -35,16 +33,15 @@ end
 
 %% Apply gaussian to reduce spurious large derivatives
 % Expect clicks to be about T duration so filter for that
-T = .002;
+T = .004;
 N = floor(T*Fs);
 
 H = fspecial('gaussian', [1 N], N/8);
 lowPass = conv(H,filtered);
-% lowPass = filtered;
 
-% if verbose
-%     plotAudio(lowPass,Fs);
-% end
+if verbose
+    plotAudio(lowPass,Fs);
+end
 
 %% Find transient locations
 LOW = 0;
@@ -90,17 +87,10 @@ for i = 1:length(lowPass)
     end
 end
 
-% fltEng = lowPass > std(lowPass);
-% riseEdges = diff(fltEng) > 0;
-
-
 t = 1:length(y)-1;
-
 
 if verbose
     figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
-    % figure; plot(t, y(t), t, lowPass(t)); title('Transients');
-    % figure; plot(t, lowPass(t)); title('Transients');
 end
 
 %% Find transients

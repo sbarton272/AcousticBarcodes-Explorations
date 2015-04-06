@@ -10,7 +10,7 @@ fltY = preFilter(audio, false);
 trans = transients(fltY,Fs, false);
 
 %% Plot found locations
-% plotTransientLocs(trans, audio, Fs);
+%plotTransientLocs(trans, audio, Fs);
 
 %% Decode
 decoded = decodeBarcode(trans, false);
