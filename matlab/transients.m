@@ -8,7 +8,7 @@ y = y.^2;
 %% Apply initial gaussian to do light smoothing
 T = .001;
 N = floor(T*Fs);
-H = fspecial('gaussian', [1 N], N/8)
+H = fspecial('gaussian', [1 N], N/8);
 z = conv(H,y);
 
 % filtered = z;

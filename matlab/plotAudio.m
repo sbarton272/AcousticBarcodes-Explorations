@@ -1,6 +1,6 @@
 function plotAudio(y, Fs)
 
-SPEC_WIN = 256;
+SPEC_WIN = 16;
 
 if size(y,2) == 2
     % Make single channel

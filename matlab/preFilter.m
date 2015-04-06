@@ -1,4 +1,4 @@
-function fltY = preFilter(y, verbose)
+function out = preFilter(y, verbose)
 
 N = 256;
 W = .1;
@@ -11,5 +11,7 @@ if verbose
 end
 
 fltY = filter(b,1,y);
+
+out = fltY / max(abs(fltY));
 
 end
