@@ -2,17 +2,48 @@ function transLoc = transients(y, Fs, verbose)
 
 transLoc = [];
 
+NUM_FLT = 10;
+W_BAND = 1 / NUM_FLT;
+N = 256;
+
+W = W_BAND;
+b = fir1(N, W, 'low');
+fltY = filter(b,1,y);
+for n = 2:NUM_FLT-1
+    W = [(n-1)*W_BAND, n*W_BAND];
+    b = fir1(N, W);
+    fltY = [fltY, filter(b,1,y)];
+end
+W = (NUM_FLT-1)*W_BAND;
+b = fir1(N, W, 'high');
+fltY = [fltY, filter(b,1,y)];
+
 %% Look at energy
-y = y.^2;
+fltY = fltY.^2;
+
+%% Mult bands to pass only evenly spread signals
+if verbose
+    figure; imagesc(log(fltY'))
+end
+
+y = cumsum(log(fltY),2);
+y = y(:,NUM_FLT);
+
+%% Mean subtract
+y = y - mean(y);
+
+if verbose
+    plotAudio(y,Fs);
+end
 
 %% Apply initial gaussian to do light smoothing
-T = .002;
+T = .001;
 N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
 z = conv(H,y);
 
 %% Envelope following just like with circuit envelope following
-TAU = .01 / Fs;
+TAU = .1 / Fs;
 
 filtered = zeros(size(z));
 time = 1;
@@ -33,7 +64,7 @@ end
 
 %% Apply gaussian to reduce spurious large derivatives
 % Expect clicks to be about T duration so filter for that
-T = .004;
+T = .001;
 N = floor(T*Fs);
 
 H = fspecial('gaussian', [1 N], N/8);

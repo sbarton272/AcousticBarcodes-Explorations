@@ -16,11 +16,11 @@ audioFiles{n}.name
 plotAudio(audio2, Fs);
 
 %% Pre-Filter noise
-fltY = preFilter(audio1, true);
-plotAudio(fltY, Fs);
+%fltY = preFilter(audio1, true);
+%plotAudio(fltY, Fs);
 
 %% Transients
-trans = transients(fltY, Fs, true);
+trans = transients(audio1, Fs, true);
 locs = trans/Fs
 num = length(locs)
 
