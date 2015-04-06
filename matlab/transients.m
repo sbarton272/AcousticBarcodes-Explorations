@@ -12,7 +12,7 @@ H = fspecial('gaussian', [1 N], N/8);
 z = conv(H,y);
 
 %% Envelope following just like with circuit envelope following
-TAU = .01 / Fs;
+TAU = .02 / Fs;
 
 filtered = zeros(size(z));
 time = 1;
@@ -48,9 +48,9 @@ LOW = 0;
 HIGH = 1;
 FALLING = 2;
 
-LOW_HIGH_THRESH = 0.1 * std(lowPass); % this is arbitrary
+FLOOR_THRESH = 0.002 % this is sorta arbitrary
 FALL_HIGH_THRESH = 2;
-FALL_LOW_THRESH = LOW_HIGH_THRESH;
+FALL_LOW_THRESH = FLOOR_THRESH;
 HIGH_FALL_THRESH = 0.3;
 
 state = LOW;
@@ -62,7 +62,7 @@ for i = 1:length(lowPass)
     n = lowPass(i);
     switch state
         case LOW
-            if n > LOW_HIGH_THRESH
+            if n > FLOOR_THRESH
                 state = HIGH;
                 riseEdges(i) = true;
             end
