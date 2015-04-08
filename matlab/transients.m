@@ -10,6 +10,7 @@ T = .002;
 N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
 z = conv(H,y);
+z = z(floor(N/2):length(z));
 
 %% Envelope following just like with circuit envelope following
 TAU = .02 / Fs;
@@ -37,7 +38,7 @@ T = .004;
 N = floor(T*Fs);
 
 H = fspecial('gaussian', [1 N], N/8);
-lowPass = conv(H,filtered);
+lowPass = conv(H,filtered(floor(N/2):length(filtered)));
 
 if verbose
     plotAudio(lowPass,Fs);
@@ -48,10 +49,13 @@ LOW = 0;
 HIGH = 1;
 FALLING = 2;
 
-FLOOR_THRESH = 0.002 % this is sorta arbitrary
+FLOOR_THRESH = 0.002; % this is sorta arbitrary
 FALL_HIGH_THRESH = 2;
 FALL_LOW_THRESH = FLOOR_THRESH;
 HIGH_FALL_THRESH = 0.3;
+
+transientsData = [];
+k = 1;
 
 state = LOW;
 riseEdges = zeros(size(lowPass));
@@ -65,24 +69,30 @@ for i = 1:length(lowPass)
             if n > FLOOR_THRESH
                 state = HIGH;
                 riseEdges(i) = true;
-            end
-        case FALLING
-            if n > minimum * FALL_HIGH_THRESH
-                state = HIGH;
-                riseEdges(i) = true;
-            elseif n < FALL_LOW_THRESH
-                state = LOW;
-                minimum = 0;
-            else
-                minimum = min(minimum, n);
+                transients(k).start = i;
             end
         case HIGH
             if n < maximum * HIGH_FALL_THRESH
                 state = FALLING;
+                transients(k).max = maximum;
                 maximum = 0;
                 minimum = n;
             else
                 maximum = max(maximum, n);
+            end
+        case FALLING
+            if n > minimum * FALL_HIGH_THRESH
+                state = HIGH;
+                k = k+1;
+                riseEdges(i) = true;
+            elseif n < FALL_LOW_THRESH
+                state = LOW;
+                minimum = 0;
+                k = k+1;
+            elseif n < minimum
+                transients(k).end = i;
+                transients(k+1).start = i+1;
+                minimum = n;
             end
     end
 end
