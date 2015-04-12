@@ -2,45 +2,35 @@ function transLoc = transients(y, Fs, verbose)
 
 transLoc = [];
 
-NUM_FLT = 10;
-W_BAND = 1 / NUM_FLT;
-N = 256;
+SPEC_WIN = 32;
+S = abs(spectrogram(y,SPEC_WIN));
 
-W = W_BAND;
-b = fir1(N, W, 'low');
-fltY = filter(b,1,y);
-for n = 2:NUM_FLT-1
-    W = [(n-1)*W_BAND, n*W_BAND];
-    b = fir1(N, W);
-    fltY = [fltY, filter(b,1,y)];
-end
-W = (NUM_FLT-1)*W_BAND;
-b = fir1(N, W, 'high');
-fltY = [fltY, filter(b,1,y)];
+%% Normalize bands
+m = mean(S,2);
+s = std(S,0,2);
 
-%% Look at energy
-fltY = fltY.^2;
+normS = bsxfun(@times, bsxfun(@minus, S, m), 1 ./ s);
 
-%% Mult bands to pass only evenly spread signals
-if verbose
-    figure; imagesc(log(fltY'))
-end
+figure; imagesc(normS); title('Normed S');
 
-y = cumsum(log(fltY),2);
-y = y(:,NUM_FLT);
+% Weight the freq bins
+weights = ones(size(normS,1),1);
+weights(1:20) = 0;
+wNormS = bsxfun(@times, normS, weights);
+figure; imagesc(wNormS); title('Weighted normed S');
 
-%% Mean subtract
-y = y - mean(y);
+sumS = sum(wNormS);
+figure; plot(sumS); title('Sum over S');
 
-if verbose
-    plotAudio(y,Fs);
-end
+y = sumS;
 
 %% Apply initial gaussian to do light smoothing
 T = .001;
 N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
 z = conv(H,y);
+
+figure; plot(z); title('LP 1');
 
 %% Envelope following just like with circuit envelope following
 TAU = .1 / Fs;
@@ -62,6 +52,9 @@ for i = 2:length(z)
     end
 end
 
+figure; plot(filtered); title('Envelope');
+
+
 %% Apply gaussian to reduce spurious large derivatives
 % Expect clicks to be about T duration so filter for that
 T = .001;
@@ -70,9 +63,7 @@ N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
 lowPass = conv(H,filtered);
 
-if verbose
-    plotAudio(lowPass,Fs);
-end
+figure; plot(lowPass); title('LP 2');
 
 %% Find transient locations
 LOW = 0;
