@@ -14,6 +14,7 @@ lowPass = conv(H,y);
 if verbose
     figure; plot(y, 'g'); title('LP 1');
     hold on; plot(lowPass);
+    figure; histogram(y);
 end
 
 %% Find transient locations
