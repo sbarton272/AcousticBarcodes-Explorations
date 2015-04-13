@@ -2,68 +2,19 @@ function transLoc = transients(y, Fs, verbose)
 
 transLoc = [];
 
-SPEC_WIN = 32;
-S = abs(spectrogram(y,SPEC_WIN));
-
-%% Normalize bands
-m = mean(S,2);
-s = std(S,0,2);
-
-normS = bsxfun(@times, bsxfun(@minus, S, m), 1 ./ s);
-
-figure; imagesc(normS); title('Normed S');
-
-% Weight the freq bins
-weights = ones(size(normS,1),1);
-weights(1:20) = 0;
-wNormS = bsxfun(@times, normS, weights);
-figure; imagesc(wNormS); title('Weighted normed S');
-
-sumS = sum(wNormS);
-figure; plot(sumS); title('Sum over S');
-
-y = sumS;
+%% Look at power
+y = y .^ 2;
 
 %% Apply initial gaussian to do light smoothing
-T = .001;
+T = .0002;
 N = floor(T*Fs);
 H = fspecial('gaussian', [1 N], N/8);
-z = conv(H,y);
+lowPass = conv(H,y);
 
-figure; plot(z); title('LP 1');
-
-%% Envelope following just like with circuit envelope following
-TAU = .1 / Fs;
-
-filtered = zeros(size(z));
-time = 1;
-filtered(1) = z(1);
-lastMax = z(1);
-for i = 2:length(z)
-    % Take value if larger than falling exponential
-    expVal = lastMax*exp(-TAU*time*Fs);
-    if (z(i) >= expVal)
-        filtered(i) = z(i);
-        lastMax = z(i);
-        time = 1;
-    else
-        filtered(i) = expVal;
-        time = time + 1;
-    end
+if verbose
+    figure; plot(y, 'g'); title('LP 1');
+    hold on; plot(lowPass);
 end
-
-figure; plot(filtered); title('Envelope');
-
-
-%% Apply gaussian to reduce spurious large derivatives
-% Expect clicks to be about T duration so filter for that
-T = .001;
-N = floor(T*Fs);
-
-H = fspecial('gaussian', [1 N], N/8);
-lowPass = conv(H,filtered);
-
-figure; plot(lowPass); title('LP 2');
 
 %% Find transient locations
 LOW = 0;
@@ -112,7 +63,8 @@ end
 t = 1:length(y)-1;
 
 if verbose
-    figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(y)); title('Transients');
+    figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(lowPass));
+    title('Transients');
 end
 
 %% Find transients

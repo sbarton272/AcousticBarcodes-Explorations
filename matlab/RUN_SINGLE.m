@@ -16,16 +16,16 @@ audioFiles{n}.name
 plotAudio(audio2, Fs);
 
 %% Pre-Filter noise
-%fltY = preFilter(audio1, true);
-%plotAudio(fltY, Fs);
+fltY = preFilter(audio1, true);
+plotAudio(fltY, Fs);
 
 %% Transients
-trans = transients(audio1, Fs, true);
+trans = transients(fltY, Fs, true);
 locs = trans/Fs
 num = length(locs)
 
 %% Plot found locations
-plotTransientLocs(trans, audio1, Fs);
+plotTransientLocs(trans, fltY, Fs);
 
 %% Decode
 decoded = decodeBarcode(trans, true)

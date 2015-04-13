@@ -1,15 +1,26 @@
 function fltY = preFilter(y, verbose)
 
-N = 256;
-W = .1;
+SPEC_WIN = 32;
+S = abs(spectrogram(y,SPEC_WIN));
 
-b = fir1(N, W, 'high');
+%% Normalize bands
+m = mean(S,2);
+s = std(S,0,2);
+
+normS = bsxfun(@times, bsxfun(@minus, S, m), 1 ./ s);
+
+% Weight the freq bins
+weights = ones(size(normS,1),1);
+weights(1:20) = 0;
+wNormS = bsxfun(@times, normS, weights);
+sumS = sum(wNormS);
+
+fltY = sumS;
 
 if verbose
-    figure;
-    freqz(b,1);
+    figure; imagesc(normS); title('Normed S');
+    figure; imagesc(wNormS); title('Weighted normed S');
+    figure; plot(sumS); title('Sum over S');
 end
-
-fltY = filter(b,1,y);
 
 end
