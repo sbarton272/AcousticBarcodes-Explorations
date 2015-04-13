@@ -28,8 +28,8 @@ class Encoding(object):
 
     def __str__(s):
         strCode = "".join(map(lambda x: str(x), s.code))
-        strEncode = "".join(map(lambda x: str(x), s.encode))        
-        return "Encoding(" + strCode + " -> " + strEncode + ")" 
+        strEncode = "".join(map(lambda x: str(x), s.encode))
+        return "Encoding(" + strCode + " -> " + strEncode + ")"
 
 #========================================================
 # Barcode drawer
@@ -44,8 +44,8 @@ class BarcodeDrawer(object):
     ONE_WIDTH = 1
 
     def __init__(s, code, width=200, height=None, unitWidth=None, barWidth=None,
-        notchWidth=2, startBand=[1,1], stopBand=[0,1], includeText=False):
-        
+        notchWidth=2, startBand=[1,1], stopBand=[1,1], includeText=False):
+
         s.digits = startBand + code + stopBand
 
         # Bar width by defualt assumed to be full width
@@ -64,7 +64,7 @@ class BarcodeDrawer(object):
         unitLen = sum(map(lambda x: s.ZERO_WIDTH if x==0 else s.ONE_WIDTH, s.digits))
         if unitWidth == None:
             # Sub one notchWidth for first notch, add 2 unit len for buffer
-            codeWidth = (height - notchWidth)/(unitLen + 2) 
+            codeWidth = (height - notchWidth)/(unitLen + 2)
             unitWidth = codeWidth - notchWidth
         s.unitWidth = unitWidth
 
@@ -105,7 +105,7 @@ class BarcodeDrawer(object):
 
     def drawBar(s, drawing, digit, xOffset, yOffset):
         """ Draw bar and return lower right corner """
-        
+
         (x0,y0,x1,y1) = s.drawNotch(drawing, xOffset, yOffset)
 
         # Draw end notch
@@ -113,7 +113,8 @@ class BarcodeDrawer(object):
 
         # Notch distance apart encodes digit
         if digit == 0:
-            y0 = y1 + s.ZERO_WIDTH*s.unitWidth
+            # take into account of notch width
+            y0 = y1 + s.ZERO_WIDTH*s.unitWidth + s.notchWidth
         elif digit == 1:
             y0 = y1 + s.ONE_WIDTH*s.unitWidth
 
@@ -133,12 +134,17 @@ class BarcodeDrawer(object):
 #========================================================
 
 if __name__ == '__main__':
-    
-    codes = [[1,1,1],[0,0,0],[0,1,0],[1,0,1]]
+    codes = [
+        [1,1,1,1,1,1,1,1,1,1,1,1],
+        [ 0 , 0 , 0 , 0 , 0 , 0 ],
+        [1,1,1, 0 , 0 , 0 ,1,1,1],
+        [1, 0 ,1, 0 ,1, 0 ,1, 0 ],
+        [1,1,1,1,1,1, 0 , 0 , 0 ]
+    ]
     width = 15
     height = 20
-    unit = 1
-    notchWidth = [.3,.5]
+    unit = 0.5
+    notchWidth = [.5]
 
     for code in codes:
         codeStr = ''.join(map(str,code))
@@ -146,6 +152,6 @@ if __name__ == '__main__':
         for n in notchWidth:
             filename = 'code' + codeStr + '-notch' + str(n) + '-len' + str(unit) + '.dxf'
             drawer = BarcodeDrawer(code, width=width, height=height, unitWidth=unit, notchWidth=n,
-                includeText=True)
+                includeText=False)
             drawer.draw(filename)
 
