@@ -2,74 +2,107 @@ function transLoc = transients(y, Fs, verbose)
 
 transLoc = [];
 
-%% Look at power
-y = y .^ 2;
+%% accentuate peaks
+% y = y .^ 2;
+
+%% threshold away floor
+% z = max(0, y - 0.5 * mean(y));
 
 %% Apply initial gaussian to do light smoothing
-T = .0002;
-N = floor(T*Fs);
+N = 32;
 H = fspecial('gaussian', [1 N], N/8);
 lowPass = conv(H,y);
+lowPass = lowPass(N/2:length(lowPass));
+
+filtered_mean = mean(lowPass);
 
 if verbose
     figure; plot(y, 'g'); title('LP 1');
     hold on; plot(lowPass);
-    figure; histogram(y);
+    % plot(diff(lowPass));
+    % plot([1 length(lowPass)], [0 0]);
+    plot([1 length(lowPass)], [filtered_mean filtered_mean]);
+    % figure; histogram(y);
 end
 
 %% Find transient locations
-LOW = 0;
-HIGH = 1;
-FALLING = 2;
+% LOW = 0;
+% HIGH = 1;
+% FALLING = 2;
 
-LOW_HIGH_THRESH = 0.1 * std(lowPass); % this is arbitrary
-FALL_HIGH_THRESH = 2;
-FALL_LOW_THRESH = LOW_HIGH_THRESH;
-HIGH_FALL_THRESH = 0.3;
+% LOW_HIGH_THRESH = 0.1 * std(lowPass); % this is arbitrary
+% FALL_HIGH_THRESH = 2;
+% FALL_LOW_THRESH = LOW_HIGH_THRESH;
+% HIGH_FALL_THRESH = 0.3;
 
-state = LOW;
-riseEdges = zeros(size(lowPass));
-isInTransient = false;
-minimum = lowPass(1);
-maximum = 0;
-for i = 1:length(lowPass)
-    n = lowPass(i);
-    switch state
-        case LOW
-            if n > LOW_HIGH_THRESH
-                state = HIGH;
-                riseEdges(i) = true;
-            end
-        case FALLING
-            if n > minimum * FALL_HIGH_THRESH
-                state = HIGH;
-                riseEdges(i) = true;
-            elseif n < FALL_LOW_THRESH
-                state = LOW;
-                minimum = 0;
-            else
-                minimum = min(minimum, n);
-            end
-        case HIGH
-            if n < maximum * HIGH_FALL_THRESH
-                state = FALLING;
-                maximum = 0;
-                minimum = n;
-            else
-                maximum = max(maximum, n);
-            end
+% state = LOW;
+% riseEdges = zeros(size(lowPass));
+% isInTransient = false;
+% minimum = lowPass(1);
+% maximum = 0;
+% for i = 1:length(lowPass)
+%     n = lowPass(i);
+%     switch state
+%         case LOW
+%             if n > LOW_HIGH_THRESH
+%                 state = HIGH;
+%                 riseEdges(i) = true;
+%             end
+%         case FALLING
+%             if n > minimum * FALL_HIGH_THRESH
+%                 state = HIGH;
+%                 riseEdges(i) = true;
+%             elseif n < FALL_LOW_THRESH
+%                 state = LOW;
+%                 minimum = 0;
+%             else
+%                 minimum = min(minimum, n);
+%             end
+%         case HIGH
+%             if n < maximum * HIGH_FALL_THRESH
+%                 state = FALLING;
+%                 maximum = 0;
+%                 minimum = n;
+%             else
+%                 maximum = max(maximum, n);
+%             end
+%     end
+% end
+
+
+%% Find transient peaks
+isRising = true;
+last_max = 1;
+last_min = 1;
+% transLoc = find(riseEdges);
+transLoc = zeros(size(lowPass));
+for i = 1:length(lowPass)-1
+    s = lowPass(i);
+    s_next = lowPass(i+1);
+    if isRising && s > s_next
+        isRising = false;
+        last_max = i;
+    elseif ~isRising && s < s_next
+        isRising = true;
+
+        cur_min = i;
+        height = lowPass(last_max);
+        prominence = height - max(lowPass(last_min), lowPass(cur_min))
+        if height > filtered_mean && prominence > height/2
+            transLoc(last_max) = true;
+        end
+
+        last_min = i;
     end
 end
 
 t = 1:length(y)-1;
 
 if verbose
-    figure; plot(t, y(t), t, lowPass(t), t, riseEdges(t)*max(lowPass));
+    figure; plot(t, y(t), t, lowPass(t), t, transLoc(t)*max(lowPass));
     title('Transients');
 end
 
-%% Find transients
-
-transLoc = find(riseEdges);
+transLoc = find(transLoc);
 
 end
