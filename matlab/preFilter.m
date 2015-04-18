@@ -3,11 +3,12 @@ function fltY = preFilter(y, verbose)
 SPEC_WIN = 32;
 S = abs(spectrogram(y,SPEC_WIN, SPEC_WIN - 1, SPEC_WIN));
 
-%% Normalize bands
+%% DONT Normalize bands
 m = mean(S,2);
 s = std(S,0,2);
 
-normS = bsxfun(@times, bsxfun(@minus, S, m), 1 ./ s);
+% normS = bsxfun(@times, bsxfun(@minus, S, m), 1 ./ s);
+normS = S;
 
 % Weight the freq bins
 weights = ones(size(normS,1),1);
