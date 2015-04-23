@@ -54,6 +54,16 @@ def generateLookupTable(padding, dataLen, p, q,
 
     table = generateCode(padding)
 
+    def gcd(a, b):
+        while b != 0:
+            t = a
+            a = b
+            b = t % b
+        return a
+
+    if gcd(len(table), p) != 1:
+        raise ValueError('p is not relatively prime to length of possible codes: ' + str(len(table)))
+
     # remove padding
     table = [code[len(padding):-len(padding)] for code in table]
 
