@@ -40,7 +40,7 @@ class BarcodeDrawer(object):
     OUTFILE = 'drawings/'
 
     # Encoding: 0 = 2 unit, 1 = 1 unit
-    ZERO_WIDTH = 2
+    TWO_WIDTH = 2
     ONE_WIDTH = 1
 
     def __init__(s, code, width=200, height=None, unitWidth=None, barWidth=None,
@@ -61,7 +61,7 @@ class BarcodeDrawer(object):
         s.code = code
 
         # Notch unit width
-        unitLen = sum(map(lambda x: s.ZERO_WIDTH if x==0 else s.ONE_WIDTH, s.digits))
+        unitLen = sum(map(lambda x: s.TWO_WIDTH if x==0 else s.ONE_WIDTH, s.digits))
         if unitWidth == None:
             # Sub one notchWidth for first notch, add 2 unit len for buffer
             codeWidth = (height - notchWidth)/(unitLen + 2)
@@ -114,7 +114,7 @@ class BarcodeDrawer(object):
         # Notch distance apart encodes digit
         if digit == 0:
             # take into account of notch width
-            y0 = y1 + s.ZERO_WIDTH*s.unitWidth + s.notchWidth
+            y0 = y1 + s.TWO_WIDTH*s.unitWidth + s.notchWidth
         elif digit == 1:
             y0 = y1 + s.ONE_WIDTH*s.unitWidth
 
