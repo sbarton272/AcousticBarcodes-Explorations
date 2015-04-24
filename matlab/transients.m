@@ -42,7 +42,7 @@ for i = 1:length(lowPass)-1
 
         cur_min = i;
         height = lowPass(last_max);
-        prominence = height - max(lowPass(last_min), lowPass(cur_min))
+        prominence = height - max(lowPass(last_min), lowPass(cur_min));
         if height > filtered_mean && prominence > height/2
             transLoc(last_max) = true;
         end
