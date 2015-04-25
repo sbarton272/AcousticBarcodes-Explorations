@@ -148,6 +148,9 @@ def binaryToSpaces(n):
             n >>= 1
     return code[::-1]
 
+assert(binaryToSpaces(spacesToBinary([2,1,1,2])) == [2,1,1,2])
+assert(binaryToSpaces(spacesToBinary([1,2,2,1])) == [1,2,2,1])
+
 # padding = [2,1,1,1,2]
 # table = generateLookupTable(padding, 14, 18491, 18551, maxDataNotches=13, minDataNotches=10)
 
