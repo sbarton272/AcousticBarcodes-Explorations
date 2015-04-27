@@ -63,8 +63,10 @@ for i = g+2:length(iois)
 end
 
 if bPlot
-    figure; stem(iois); title('Inter onset delays'); hold on
+    figure; stem(iois); title('Inter-onset Delays'); hold on
     stem(unitLengthAvg, 'r'); hold off;
+    xlabel('Transient'); ylabel('Delay(samples)');
+    legend('Inter-onset Delay', 'Unit Average');
 end
 
 end

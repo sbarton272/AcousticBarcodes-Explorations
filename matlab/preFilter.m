@@ -19,9 +19,9 @@ sumS = sum(wNormS);
 fltY = sumS;
 
 if verbose
-    figure; imagesc(normS); title('Normed S');
-    figure; imagesc(wNormS); title('Weighted normed S');
-    figure; plot(sumS); title('Sum over S');
+    %figure; imagesc(log(flipud(normS))); title('Normed S');
+    figure; imagesc(log(flipud(wNormS))); title('Weighted normed S');
+    %figure; plot(sumS); title('Sum over S');
 end
 
 end

@@ -8,11 +8,9 @@ close all
 % [audioFiles, Fs] = loadAudio();
 
 %% Extract single test file
-% audio2 = audioFiles{n}.audio; % 1, 3, 5, 8, 9
-% audio1 = sum(audio2, 2);
-% audioFiles{n}.name
 
-[audio1, Fs] = audioread(fileName)
+[audio2, Fs] = audioread(fileName);
+audio1 = sum(audio2, 2);
 
 %% Plot
 plotAudio(audio1, Fs);

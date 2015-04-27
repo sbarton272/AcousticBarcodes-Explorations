@@ -10,7 +10,7 @@ transLoc = [];
 
 %% Apply initial gaussian to do light smoothing
 N = 32;
-H = fspecial('gaussian', [1 N], N/8);
+H = fspecial('gaussian', [1 N], 16);
 lowPass = conv(H,y);
 lowPass = lowPass(N/2:length(lowPass));
 
@@ -53,11 +53,17 @@ end
 
 t = 1:length(y)-1;
 
-if verbose
-    figure; plot(t, y(t), t, lowPass(t), t, transLoc(t)*max(lowPass));
-    title('Transients');
-end
-
 transLoc = find(transLoc);
+
+if verbose
+    figure; plot(t, lowPass(t));
+    hold on;
+    plot([1 length(lowPass)], [filtered_mean filtered_mean], 'g');
+    plot(transLoc, zeros(size(transLoc)), 'ro');
+    hold off;
+    title('Transients');
+    xlabel('Samples'); ylabel('Magnitude');
+    legend('Filtered Signal', 'Mean', 'Transients');
+end
 
 end
