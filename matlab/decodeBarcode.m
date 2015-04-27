@@ -10,6 +10,7 @@ if length(trans) < 4 % 4 guard bits
 end
 
 iois = diff(trans);
+iois = flip(iois);
 
 % For plotting purposes
 unitLengthAvg = zeros(1,length(iois));
@@ -67,6 +68,11 @@ if bPlot
     stem(unitLengthAvg, 'r'); hold off;
     xlabel('Transient'); ylabel('Delay(samples)');
     legend('Inter-onset Delay', 'Unit Average');
+    % divide zeros by zeros to turn them into NaNs so they don't get counted as a minimum
+    minimum = log2(min([unitLengthAvg./unitLengthAvg.*unitLengthAvg iois]));
+    figure; plot(log2(unitLengthAvg) - minimum, '-*r'); title('Inter onset delays'); hold on
+    stem(log2(iois) - minimum, 'LineStyle', '-'); hold off;
+    % figure; histogram(log2(iois), 20);
 end
 
 end
